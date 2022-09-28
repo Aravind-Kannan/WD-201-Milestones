@@ -36,7 +36,7 @@ const todoList = () => {
     const today = formattedDate(dateToday);
     return list
       .map((todo) => {
-        return `[${todo.completed ? "X" : " "}] ${todo.title} ${
+        return `[${todo.completed ? "x" : " "}] ${todo.title} ${
           todo.dueDate !== today ? todo.dueDate : " "
         }`;
       })
