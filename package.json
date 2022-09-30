@@ -2,10 +2,10 @@
   "name": "wd-201-milestones",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "todo.js",
   "scripts": {
     "test": "jest",
-    "start": "node index.js",
+    "start": "node todo.js",
     "prepare": "husky install"
   },
   "lint-staged": {
