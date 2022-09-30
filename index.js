@@ -1,5 +1,5 @@
 const todoList = () => {
-  all = [];
+  let all = [];
   const add = (todoItem) => {
     all.push(todoItem);
   };
@@ -52,6 +52,10 @@ const todoList = () => {
     dueLater,
     toDisplayableList,
   };
+};
+
+const formattedDate = (d) => {
+  return d.toISOString().split("T")[0];
 };
 
 module.exports = todoList;

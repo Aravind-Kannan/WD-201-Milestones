@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const todoList = require("../index");
 
 const { all, markAsComplete, add } = todoList();
