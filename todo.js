@@ -1,4 +1,6 @@
 const todoList = () => {
+  let dateToday = new Date();
+  const today = formattedDate(dateToday);
   let all = [];
   const add = (todoItem) => {
     all.push(todoItem);
@@ -8,37 +10,30 @@ const todoList = () => {
   };
 
   const overdue = () => {
-    let dateToday = new Date();
-    const today = formattedDate(dateToday);
     return all.filter((todo) => {
       return todo.dueDate < today;
     });
   };
 
   const dueToday = () => {
-    let dateToday = new Date();
-    const today = formattedDate(dateToday);
     return all.filter((todo) => {
       return todo.dueDate === today;
     });
   };
 
   const dueLater = () => {
-    let dateToday = new Date();
-    const today = formattedDate(dateToday);
     return all.filter((todo) => {
       return todo.dueDate > today;
     });
   };
 
+  // eslint-disable-next-line no-unused-vars
   const toDisplayableList = (list) => {
-    let dateToday = new Date();
-    const today = formattedDate(dateToday);
     return list
       .map((todo) => {
         return `[${todo.completed ? "x" : " "}] ${todo.title} ${
           todo.dueDate !== today ? todo.dueDate : " "
-        }`;
+        }`.trim();
       })
       .join("\n");
   };
@@ -50,7 +45,6 @@ const todoList = () => {
     overdue,
     dueToday,
     dueLater,
-    toDisplayableList,
   };
 };
 
