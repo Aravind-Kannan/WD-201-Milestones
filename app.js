@@ -39,7 +39,7 @@ app.post("/todos", async (request, response) => {
   }
 });
 
-app.put("/todos/:id/markAsComplete", async (request, response) => {
+app.put("/todos/:id/markAsCompleted", async (request, response) => {
   const todo = await Todo.findByPk(request.params.id);
   try {
     const updatedTodo = await todo.markAsCompleted();
