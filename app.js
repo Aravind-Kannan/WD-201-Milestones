@@ -12,9 +12,21 @@ const { Todo } = require("./models");
 
 app.get("/", async (request, response) => {
   const allTodos = await Todo.getTodos();
+  const today = new Date().toISOString().split("T")[0];
+  const overdue = allTodos.filter((todo) => {
+    return todo.dueDate < today;
+  });
+  const dueToday = allTodos.filter((todo) => {
+    return todo.dueDate === today;
+  });
+  const dueLater = allTodos.filter((todo) => {
+    return todo.dueDate > today;
+  });
   if (request.accepts("html")) {
     response.render("index", {
-      allTodos,
+      overdue,
+      dueToday,
+      dueLater,
     });
   } else {
     response.json({
