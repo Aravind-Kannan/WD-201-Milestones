@@ -20,27 +20,55 @@ module.exports = (sequelize, DataTypes) => {
     static overdue() {
       return this.findAll({
         where: {
-          dueDate: {
-            [Op.lt]: new Date(),
-          },
+          [Op.and]: [
+            {
+              dueDate: {
+                [Op.lt]: new Date(),
+              },
+            },
+            {
+              completed: false,
+            },
+          ],
         },
       });
     }
     static dueToday() {
       return this.findAll({
         where: {
-          dueDate: {
-            [Op.eq]: new Date(),
-          },
+          [Op.and]: [
+            {
+              dueDate: {
+                [Op.eq]: new Date(),
+              },
+            },
+            {
+              completed: false,
+            },
+          ],
         },
       });
     }
     static dueLater() {
       return this.findAll({
         where: {
-          dueDate: {
-            [Op.gt]: new Date(),
-          },
+          [Op.and]: [
+            {
+              dueDate: {
+                [Op.gt]: new Date(),
+              },
+            },
+            {
+              completed: false,
+            },
+          ],
+        },
+      });
+    }
+    static completed() {
+      return this.findAll({
+        where: {
+          completed: true,
         },
       });
     }
@@ -53,6 +81,9 @@ module.exports = (sequelize, DataTypes) => {
     }
     markAsCompleted() {
       return this.update({ completed: true });
+    }
+    setCompletionStatus({ completed }) {
+      return this.update({ completed: !completed });
     }
   }
   Todo.init(
