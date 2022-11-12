@@ -2,8 +2,14 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const path = require("path");
+const cookieParser = require("cookie-parser");
+const csrf = require("tiny-csrf");
 
 app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser("shh! some secret string"));
+app.use(csrf("this_should_be_32_character_long", ["POST", "PUT", "DELETE"]));
+
 app.set("view engine", "ejs");
 // eslint-disable-next-line no-undef
 app.use(express.static(path.join(__dirname, "public")));
@@ -11,26 +17,21 @@ app.use(express.static(path.join(__dirname, "public")));
 const { Todo } = require("./models");
 
 app.get("/", async (request, response) => {
-  const allTodos = await Todo.getTodos();
-  const today = new Date().toISOString().split("T")[0];
-  const overdue = allTodos.filter((todo) => {
-    return todo.dueDate < today;
-  });
-  const dueToday = allTodos.filter((todo) => {
-    return todo.dueDate === today;
-  });
-  const dueLater = allTodos.filter((todo) => {
-    return todo.dueDate > today;
-  });
+  const overdue = await Todo.overdue();
+  const dueToday = await Todo.dueToday();
+  const dueLater = await Todo.dueLater();
   if (request.accepts("html")) {
     response.render("index", {
       overdue,
       dueToday,
       dueLater,
+      csrfToken: request.csrfToken(),
     });
   } else {
     response.json({
-      allTodos,
+      overdue,
+      dueToday,
+      dueLater,
     });
   }
 });
@@ -57,8 +58,9 @@ app.get("/todos/:id", async (request, response) => {
 
 app.post("/todos", async (request, response) => {
   try {
-    const todo = await Todo.addTodo(request.body);
-    return response.json(todo);
+    await Todo.addTodo(request.body);
+    // return response.json(todo);
+    return response.redirect("/");
   } catch (error) {
     console.log(error);
     return response.status(422).json(error);
@@ -78,12 +80,8 @@ app.put("/todos/:id/markAsCompleted", async (request, response) => {
 
 app.delete("/todos/:id", async (request, response) => {
   try {
-    const deletedTodo = await Todo.destroy({
-      where: {
-        id: request.params.id,
-      },
-    });
-    return response.json(deletedTodo === 1);
+    await Todo.remove(request.params.id);
+    return response.json({ success: true });
   } catch (error) {
     console.log(error);
     return response.status(422).json(error);
