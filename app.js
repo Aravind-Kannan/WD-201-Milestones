@@ -72,8 +72,11 @@ app.post("/todos", async (request, response) => {
 app.put("/todos/:id", async (request, response) => {
   const todo = await Todo.findByPk(request.params.id);
   try {
-    const updatedTodo = await todo.setCompletionStatus(todo);
-    return response.json(updatedTodo);
+    if ("completed" in request.body) {
+      let updatedTodo = await todo.setCompletionStatus(request.body.completed);
+      return response.json(updatedTodo);
+    }
+    return response.status(422).json({ message: "Missing completed property" });
   } catch (error) {
     console.log(error);
     return response.status(422).json(error);

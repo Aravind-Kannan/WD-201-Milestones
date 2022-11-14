@@ -10,23 +10,29 @@
     <link href="./css/styles.css" rel="stylesheet" />
     <script>
       const token = document
-        .querySelector('meta[name="csrf-token"]')
+        .querySelector(`meta[name="csrf-token"]`)
         .getAttribute("content");
       function updateTodo(id) {
-        fetch(`/todos/${id}`, {
-          method: "put",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            _csrf: token,
-          }),
-        })
-          .then((res) => {
-            if (res.ok) {
-              window.location.reload();
-            }
-          })
-          .catch((err) => {
-            console.error(err);
+        fetch(`/todos/${id}`, {})
+          .then((res) => res.json())
+          .then((todo) => {
+            fetch(`/todos/${id}`, {
+              method: "put",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                _csrf: token,
+                ...todo,
+                completed: !todo.completed,
+              }),
+            })
+              .then((res) => {
+                if (res.ok) {
+                  window.location.reload();
+                }
+              })
+              .catch((err) => {
+                console.error(err);
+              });
           });
       }
       function deleteTodo(id) {

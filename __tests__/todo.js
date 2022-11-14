@@ -66,8 +66,11 @@ describe("Todo test suite", () => {
       .put(`/todos/${latestTodo.id}`)
       .send({
         _csrf: csrfToken,
+        ...latestTodo,
+        completed: true,
       });
     const parsedUpdateResponse = JSON.parse(markCompleteResponse.text);
+    console.log(parsedUpdateResponse);
     expect(parsedUpdateResponse.completed).toBe(true);
   });
 
