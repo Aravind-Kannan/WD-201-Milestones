@@ -9,15 +9,22 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      Todo.belongsTo(models.User, {
+        foreignKey: "userId",
+      });
     }
-    static addTodo({ title, dueDate }) {
-      return this.create({ title: title, dueDate: dueDate, completed: false });
+    static addTodo({ title, dueDate, userId }) {
+      return this.create({
+        title: title,
+        dueDate: dueDate,
+        completed: false,
+        userId,
+      });
     }
     static getTodos() {
       return this.findAll();
     }
-    static overdue() {
+    static overdue(userId) {
       return this.findAll({
         where: {
           [Op.and]: [
@@ -29,11 +36,14 @@ module.exports = (sequelize, DataTypes) => {
             {
               completed: false,
             },
+            {
+              userId,
+            },
           ],
         },
       });
     }
-    static dueToday() {
+    static dueToday(userId) {
       return this.findAll({
         where: {
           [Op.and]: [
@@ -45,11 +55,14 @@ module.exports = (sequelize, DataTypes) => {
             {
               completed: false,
             },
+            {
+              userId,
+            },
           ],
         },
       });
     }
-    static dueLater() {
+    static dueLater(userId) {
       return this.findAll({
         where: {
           [Op.and]: [
@@ -61,21 +74,26 @@ module.exports = (sequelize, DataTypes) => {
             {
               completed: false,
             },
+            {
+              userId,
+            },
           ],
         },
       });
     }
-    static completed() {
+    static completed(userId) {
       return this.findAll({
         where: {
           completed: true,
+          userId,
         },
       });
     }
-    static async remove(id) {
+    static async remove(id, userId) {
       return this.destroy({
         where: {
           id,
+          userId,
         },
       });
     }
@@ -88,7 +106,14 @@ module.exports = (sequelize, DataTypes) => {
   }
   Todo.init(
     {
-      title: DataTypes.STRING,
+      title: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notNull: true,
+          len: 5,
+        },
+      },
       dueDate: DataTypes.DATEONLY,
       completed: DataTypes.BOOLEAN,
     },
