@@ -50,15 +50,22 @@ passport.use(
       passwordField: "password",
     },
     (username, password, done) => {
+      console.log({ username, password, done });
+      console.log(done);
       User.findOne({
         where: {
           email: username,
         },
       })
         .then(async (user) => {
-          const result = await bcrypt.compare(password, user.password);
-          if (result) return done(null, user);
-          else return done(null, false, { message: "Invalid password" });
+          if (user !== null) {
+            const result = await bcrypt.compare(password, user.password);
+            console.log(user);
+            if (result) return done(null, user);
+            else return done(null, false, { message: "Invalid password" });
+          } else {
+            return done(null, false, { message: "Invalid email" });
+          }
         })
         .catch((err) => {
           return done(err);
