@@ -18,6 +18,12 @@ app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser("shh! some secret string"));
 app.use(csrf("this_should_be_32_character_long", ["POST", "PUT", "DELETE"]));
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  if (err.message.includes("Did not get a valid CSRF token")) {
+    res.status(403).json({ message: "Invalid CSRF token!" });
+  }
+});
 
 app.set("view engine", "ejs");
 // eslint-disable-next-line no-undef
@@ -80,10 +86,14 @@ app.use(function (request, response, next) {
 const { Todo, User } = require("./models");
 
 app.get("/", async (request, response) => {
-  response.render("index", {
-    title: "Todo application",
-    csrfToken: request.csrfToken(),
-  });
+  if (request.user) {
+    response.redirect("/todos");
+  } else {
+    response.render("index", {
+      title: "Todo application",
+      csrfToken: request.csrfToken(),
+    });
+  }
 });
 
 app.get("/signup", (request, response) => {
@@ -168,6 +178,7 @@ app.get(
         dueLater,
         completed,
         csrfToken: request.csrfToken(),
+        user: request.user,
       });
     } else {
       response.json({
@@ -175,6 +186,7 @@ app.get(
         dueToday,
         dueLater,
         completed,
+        user: request.user,
       });
     }
   }
@@ -231,7 +243,7 @@ app.put(
         .json({ message: "Missing completed property" });
     } catch (error) {
       console.log(error);
-      return response.status(422).json(error);
+      return response.status(422).json({ success: false, error });
     }
   }
 );
@@ -241,11 +253,12 @@ app.delete(
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
     try {
-      await Todo.remove(request.params.id, request.user.id);
+      const count = await Todo.remove(request.params.id, request.user.id);
+      if (count === 0) return response.json({ success: false });
       return response.json({ success: true });
     } catch (error) {
       console.log(error);
-      return response.status(422).json(error);
+      return response.status(422).json({ error });
     }
   }
 );

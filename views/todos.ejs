@@ -65,7 +65,10 @@
     <div class="grid grid-cols-6">
       <div class="col-start-3 col-span-2">
         <%- include('header.ejs') %>
-        <a href="/signout">Sign out</a>
+        <div class="flex justify-between items-center border border-green-200 rounded p-2">
+          <h1><%= "Hey, " + user.firstName + " " + user.lastName + "!" %></h1>
+          <a class="p-2 rounded bg-red-600 text-white hover:bg-red-800" href="/signout">Sign out</a>
+        </div>
         <form action="/todos" method="post">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
           <div class="flex py-4 gap-2">
